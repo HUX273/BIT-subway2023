@@ -3,8 +3,7 @@ using namespace std;
 
 int main()
 {
-	cout << "Hello, World!" << endl;
-
-	//push&pull test
+	int a, b;
+	b = 2 + a;
 	return 0;
 }
