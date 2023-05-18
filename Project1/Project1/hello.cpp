@@ -4,7 +4,7 @@ using namespace std;
 int main()
 {
 	cout << "Hello, World!" << endl;
-	cout << "project subway." << endl;
-	cout << "123" << endl;
+
+	//push&pull test
 	return 0;
 }
