@@ -1,2 +1,3 @@
 ﻿  test1.cpp
-  Project1.vcxproj -> D:\WorkField\2023subway\subway\Project1\Debug\Project1.exe
+e:\work\school\31\软工\pro\subway\project1\project1\test1.cpp(207): warning C4018: “<”: 有符号/无符号不匹配
+  Project1.vcxproj -> E:\work\school\31\软工\pro\subway\Project1\Debug\Project1.exe
