@@ -179,9 +179,19 @@ void build_graph_normal() {
 	}
 }
 
-//生成输出路线
+//生成输出路线和途径站点数
 string route(int s, int t) {
 	string res = "\n";
+
+	int temp_t = t;
+	int count_point = 1;
+	while (temp_t != s) {
+		count_point ++;
+		temp_t = pre[temp_t];
+	}
+	res += to_string(count_point);
+	res += "\n";
+
 	int last_line = -1;
 	do {
 		res += to_point_name(t);//string上加站点名称
@@ -200,7 +210,7 @@ string route(int s, int t) {
 string dis_normal(string src_name, string tar_name) {
 	int t = to_point_index(src_name), s = to_point_index(tar_name);
 	if (s == t) {//如果起点就是终点
-		return "\n" + src_name + "\n\n";
+		return "\n" + (string)"1" + "\n" + src_name + "\n\n";
 	}
 	build_graph_normal();
 	queue<int> q;//先进先出
@@ -233,8 +243,8 @@ int main(int argc, char *argv[])
 	//调试功能二：
 	argc = 4;
 	argv[1] = const_cast<char*>("/b");
-	argv[2] = const_cast<char*>("二号点");
-	argv[3] = const_cast<char*>("四号点");
+	argv[2] = const_cast<char*>("六号点");
+	argv[3] = const_cast<char*>("一号点");
 
 
 
