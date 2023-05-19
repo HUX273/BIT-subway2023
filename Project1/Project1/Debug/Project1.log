@@ -1,3 +1,4 @@
 ﻿  test1.cpp
 d:\workfield\2023subway\subway\project1\project1\test1.cpp(213): warning C4018: “<”: 有符号/无符号不匹配
+  LINK : 没有找到 D:\WorkField\2023subway\subway\Project1\Debug\Project1.exe 或上一个增量链接没有生成它；正在执行完全链接
   Project1.vcxproj -> D:\WorkField\2023subway\subway\Project1\Debug\Project1.exe
