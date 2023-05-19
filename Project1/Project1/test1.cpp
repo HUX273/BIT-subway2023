@@ -93,7 +93,7 @@ void dijkstra(int stp)//start point
 void input_map()
 {
 	ifstream fin;
-	fin.open("subway1.txt", ios::in);
+	fin.open("subway2.txt", ios::in);//此处修改输入文件
 	while (getline(fin, line_name[line_count++])) {
 		// 显示读入的路线名
 		// cout << "line name : " << line_name[line_count - 1] << endl;
@@ -243,8 +243,8 @@ int main(int argc, char *argv[])
 	//调试功能二：
 	argc = 4;
 	argv[1] = const_cast<char*>("/b");
-	argv[2] = const_cast<char*>("六号点");
-	argv[3] = const_cast<char*>("一号点");
+	argv[2] = const_cast<char*>("一号点");
+	argv[3] = const_cast<char*>("七号点");
 
 
 
