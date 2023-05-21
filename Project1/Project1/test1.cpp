@@ -172,7 +172,7 @@ void build_graph_normal() {
 	}
 }
 
-//计算路过站点数
+//计算路过站点数，并更新路过站点的vis_func3
 int count_step(int t, int s) {
 	int temp = t;
 	int count = 1;
@@ -188,7 +188,6 @@ int count_step(int t, int s) {
 
 	return count;
 }
-
 
 //生成输出路线
 string route(int s, int t) {
