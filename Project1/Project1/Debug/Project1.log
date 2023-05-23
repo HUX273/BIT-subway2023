@@ -1,4 +1,6 @@
-﻿  test1.cpp
-d:\workfield\2023subway\subway\project1\project1\test1.cpp(253): warning C4018: “<”: 有符号/无符号不匹配
-d:\workfield\2023subway\subway\project1\project1\test1.cpp(286): warning C4018: “<”: 有符号/无符号不匹配
-  Project1.vcxproj -> D:\WorkField\2023subway\subway\Project1\Debug\Project1.exe
+﻿  Subway.cpp
+  test1.cpp
+e:\work\school\31\软工\pro\subway\project1\project1\test1.cpp(236): warning C4018: “<”: 有符号/无符号不匹配
+e:\work\school\31\软工\pro\subway\project1\project1\test1.cpp(269): warning C4018: “<”: 有符号/无符号不匹配
+  正在生成代码...
+  Project1.vcxproj -> E:\work\school\31\软工\pro\subway\Project1\Debug\Project1.exe

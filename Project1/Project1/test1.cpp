@@ -1,20 +1,4 @@
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <cstring>
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <map>
-#include <queue>
-#include<ctime>
-
-using namespace std;
-
-const int INF = 0x7f7f7f7f;
-
-const int MAX_POINT = 500; //车站的个数上限
-const int MAX_LINE = 50; //路线的个数上限
+#include "head.h"
 
 
 string line_name[MAX_LINE]; // 路线的名字
