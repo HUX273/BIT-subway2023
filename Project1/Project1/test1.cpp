@@ -1,35 +1,51 @@
-#include "head.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include<ctime>
+
+using namespace std;
+
+const int INF = 0x7f7f7f7f;
+
+const int MAX_POINT = 500; //è½¦ç«™çš„ä¸ªæ•°ä¸Šé™
+const int MAX_LINE = 50; //è·¯çº¿çš„ä¸ªæ•°ä¸Šé™
 
 
-string line_name[MAX_LINE]; // Â·ÏßµÄÃû×Ö
-vector<int> line[MAX_LINE]; // Â·ÏßÖĞÓĞÄÄĞ©³µÕ¾
-map<string, int> point_index;	//Ã¿¸öÕ¾µÄ±êºÅ
-string point_name[MAX_POINT];	// Ã¿¸öÕ¾µÄÃû×Ö
-vector<int> neighbor[MAX_POINT];	// µãaµÄµÚi¸öÁÚ¾ÓµÄÕ¾µãĞòºÅÎª£ºneighbor[a][i]				//
-vector<int> cost[MAX_POINT];        // µãaµ½µÚi¸öÁÚ¾ÓµÄ¾àÀëÎª£ºcost[a][i]						// ÁÚ¾ÓµÄË³ĞòÊÇÓÉÊäÈëÎÄ¼ş¾ö¶¨µÄ
-vector<int> from_line[MAX_POINT];   // µãaµ½µÚi¸öÁÚ¾ÓµÄµØÌúÂ·ÏßĞòºÅÎª£ºfrom_line[a][i]			//
-int dis[MAX_POINT];		//dis[a]±íÊ¾Æğµãµ½aµãµÄ×î¶Ì¾àÀë
-bool vis[MAX_POINT];	//±ê¼Ç
-int pre[MAX_POINT];     //Æğµãµ½aµãµÄ×î¶ÌÂ·¾¶ÉÏ£¬aµãÖ®Ç°µÄÒ»¸öµãÊÇpre[a] 
-                        //Òò´Ëµ½aµãµÄ×î¶ÌÂ·¾¶Îª start_point -> ... -> pre[pre[a]] -> pre[a] -> a
-int pre_line[MAX_POINT];//aµ½pre[a]µÄÂ·ÏßÊôÓÚpre_lineÂ·Ïß
+string line_name[MAX_LINE]; // è·¯çº¿çš„åå­—
+vector<int> line[MAX_LINE]; // è·¯çº¿ä¸­æœ‰å“ªäº›è½¦ç«™
+map<string, int> point_index;	//æ¯ä¸ªç«™çš„æ ‡å·
+string point_name[MAX_POINT];	// æ¯ä¸ªç«™çš„åå­—
+vector<int> neighbor[MAX_POINT];	// ç‚¹açš„ç¬¬iä¸ªé‚»å±…çš„ç«™ç‚¹åºå·ä¸ºï¼šneighbor[a][i]				//
+vector<int> cost[MAX_POINT];        // ç‚¹aåˆ°ç¬¬iä¸ªé‚»å±…çš„è·ç¦»ä¸ºï¼šcost[a][i]						// é‚»å±…çš„é¡ºåºæ˜¯ç”±è¾“å…¥æ–‡ä»¶å†³å®šçš„
+vector<int> from_line[MAX_POINT];   // ç‚¹aåˆ°ç¬¬iä¸ªé‚»å±…çš„åœ°é“è·¯çº¿åºå·ä¸ºï¼šfrom_line[a][i]			//
+int dis[MAX_POINT];		//dis[a]è¡¨ç¤ºèµ·ç‚¹åˆ°aç‚¹çš„æœ€çŸ­è·ç¦»
+bool vis[MAX_POINT];	//æ ‡è®°
+int pre[MAX_POINT];     //èµ·ç‚¹åˆ°aç‚¹çš„æœ€çŸ­è·¯å¾„ä¸Šï¼Œaç‚¹ä¹‹å‰çš„ä¸€ä¸ªç‚¹æ˜¯pre[a] 
+//å› æ­¤åˆ°aç‚¹çš„æœ€çŸ­è·¯å¾„ä¸º start_point -> ... -> pre[pre[a]] -> pre[a] -> a
+int pre_line[MAX_POINT];//aåˆ°pre[a]çš„è·¯çº¿å±äºpre_lineè·¯çº¿
 
-bool vis_func3[MAX_POINT];	//¹¦ÄÜ3×¨ÓÃ±ê¼Ç
-int remaining_point = -1;	//¹¦ÄÜÈıÊ£ÓàµãÊı
+bool vis_func3[MAX_POINT];	//åŠŸèƒ½3ä¸“ç”¨æ ‡è®°
+int remaining_point = -1;	//åŠŸèƒ½ä¸‰å‰©ä½™ç‚¹æ•°
 
 
-//ÏßÂ·Êı
+//çº¿è·¯æ•°
 int line_count;
-//³µÕ¾Êı
+//è½¦ç«™æ•°
 int point_count;
-//±êÊ¶ÊÇÄÄ¸öfunµ÷ÓÃ´ËÄ£¿é
+//æ ‡è¯†æ˜¯å“ªä¸ªfunè°ƒç”¨æ­¤æ¨¡å—
 int fun = 0;
 
-//¸ù¾İÕ¾µãÃû×Ö·µ»Ø ±êºÅ
+//æ ¹æ®ç«™ç‚¹åå­—è¿”å› æ ‡å·
 inline int to_point_index(string name) {
 	return point_index[name];
 }
-//¸ù¾İ±êºÅ·µ»Ø Õ¾µãÃû×Ö
+//æ ¹æ®æ ‡å·è¿”å› ç«™ç‚¹åå­—
 inline string to_point_name(int index) {
 	return point_name[index];
 }
@@ -45,26 +61,26 @@ void init()
 /*
 void dijkstra(int stp)//start point
 {
-	dis[stp] = 0; //×Ô¼ºµ½×Ô¼º¾àÀëÎª0
+	dis[stp] = 0; //è‡ªå·±åˆ°è‡ªå·±è·ç¦»ä¸º0
 	for (int i = 1; i <= n; i++)
 	{
-		//±éÀúËùÓĞµã£¬ÕÒµ½ºÍ stp ¾àÀë×î¶ÌµÄµã ²¢¸üĞÂµ½¸ÃµãµÄÂ·Ïß
+		//éå†æ‰€æœ‰ç‚¹ï¼Œæ‰¾åˆ°å’Œ stp è·ç¦»æœ€çŸ­çš„ç‚¹ å¹¶æ›´æ–°åˆ°è¯¥ç‚¹çš„è·¯çº¿
 		int minx = INF;
 		int min_dis_point;
 		for (int j = 1; j <= n; j++)
 		{
-			if (vis[j] == false && dis[j] <= minx)//±ØĞëÊÇÎ´±»±ê¼ÇµÄµã
+			if (vis[j] == false && dis[j] <= minx)//å¿…é¡»æ˜¯æœªè¢«æ ‡è®°çš„ç‚¹
 			{
 				minx = dis[j];
 				min_dis_point = j;
 				//route[min_dis_point] = route[i] + " " + to_string(min_dis_point);
 			}
 		}
-		//²¢±ê¼Ç
+		//å¹¶æ ‡è®°
 		vis[min_dis_point] = true;
 		dis[min_dis_point] = minx;
 
-		//¸üĞÂËùÓĞºÍ min_dis_point Á¬½ÓµÄµãµÄ¾àÀë ÒÔ¼° Â·Ïß
+		//æ›´æ–°æ‰€æœ‰å’Œ min_dis_point è¿æ¥çš„ç‚¹çš„è·ç¦» ä»¥åŠ è·¯çº¿
 		for (int j = 1; j <= n; j++)
 		{
 			if (vis[j] == false && dis[j] > dis[min_dis_point] + maze[min_dis_point][j])
@@ -79,15 +95,15 @@ void dijkstra(int stp)//start point
 void input_map()
 {
 	ifstream fin;
-	fin.open("subway2.txt", ios::in);//´Ë´¦ĞŞ¸ÄÊäÈëÎÄ¼ş
+	fin.open("subway3.txt", ios::in);//æ­¤å¤„ä¿®æ”¹è¾“å…¥æ–‡ä»¶
 	while (getline(fin, line_name[line_count++])) {
-		// ÏÔÊ¾¶ÁÈëµÄÂ·ÏßÃû
+		// æ˜¾ç¤ºè¯»å…¥çš„è·¯çº¿å
 		// cout << "line name : " << line_name[line_count - 1] << endl;
 		string tmp;
 		getline(fin, tmp);
 		istringstream in(tmp);
 		while (getline(in, tmp, ' ')) {
-			// Èç¹ûÕâ¸ö³µÕ¾ÊÇµÚÒ»´Î³öÏÖ£¬ÎªËü·ÖÅäÒ»¸ö±êºÅ
+			// å¦‚æœè¿™ä¸ªè½¦ç«™æ˜¯ç¬¬ä¸€æ¬¡å‡ºç°ï¼Œä¸ºå®ƒåˆ†é…ä¸€ä¸ªæ ‡å·
 			if (point_index.count(tmp) == 0) {
 				point_index[tmp] = point_count;
 				point_name[point_count++] = tmp;
@@ -95,7 +111,7 @@ void input_map()
 			int i = point_index[tmp];
 			line[line_count - 1].push_back(i);
 
-			// ÏÔÊ¾¶ÁÈëµÄÕ¾Ãû
+			// æ˜¾ç¤ºè¯»å…¥çš„ç«™å
 			// cout << "|" << i << tmp << "|";
 		}
 	}
@@ -103,25 +119,25 @@ void input_map()
 	fin.close();
 }
 
-//¸ù¾İÊäÈëµÄ µØÌúÏßÂ·Ãû³Æ Êä³ö ¸ÃÏßÂ·ÉÏµÄËùÓĞÕ¾µãÃû³Æ
+//æ ¹æ®è¾“å…¥çš„ åœ°é“çº¿è·¯åç§° è¾“å‡º è¯¥çº¿è·¯ä¸Šçš„æ‰€æœ‰ç«™ç‚¹åç§°
 string line_request(string name) {
 	string res = "\n";
 	int target_line = -1;
 	for (int i = 0; i < line_count; ++i) {
 		if (line_name[i] == name) {
-			target_line = i;//È¡³öÏßÂ·Ãû³Æ¶ÔÓ¦µÄindexºÅ
+			target_line = i;//å–å‡ºçº¿è·¯åç§°å¯¹åº”çš„indexå·
 			break;
 		}
 	}
 	if (target_line == -1) {
-		res = "\n¶Ô²»Æğ£¬Äú²éÑ¯µÄÂ·Ïß²»´æÔÚ£¬ÇëÖØĞÂÊäÈë¡£\n";
+		res = "\nå¯¹ä¸èµ·ï¼Œæ‚¨æŸ¥è¯¢çš„è·¯çº¿ä¸å­˜åœ¨ï¼Œè¯·é‡æ–°è¾“å…¥ã€‚\n";
 	}
 	else {
 		for (int point : line[target_line]) {
 			res += to_point_name(point) + "\n";
 		}
 	}
-	
+
 	return res;
 }
 
@@ -133,37 +149,37 @@ string line_list() {
 	return res + "\n";
 }
 
-//¸üĞÂÕ¾µãµÄÁÚ½Ó¹ØÏµ
+//æ›´æ–°ç«™ç‚¹çš„é‚»æ¥å…³ç³»
 void add_edge(int x, int y, int l, int c = 1) {
-	neighbor[x].push_back(y);	//µãyÊÇµãxµÄÁÚ¾Ó
-	cost[x].push_back(c);		//Ä¿Ç°²»¿¼ÂÇ»»Ïß¿ªÏú£¬¹ÊËùÓĞµãÁ¬ÏßµÄcost¶¼Ä¬ÈÏÎª1
-	from_line[x].push_back(l);	//xµ½yµÄÂ·ÏßÊÇÔÚÄÄÌõµØÌúÏßÉÏ
-	neighbor[y].push_back(x);	//µãxÊÇµãyµÄÁÚ¾Ó
-	cost[y].push_back(c);		
-	from_line[y].push_back(l);	//yµ½xµÄÂ·ÏßÊÇÔÚÄÄÌõµØÌúÏßÉÏ£¨µ±È»ÓëÉÏÃæÒ»ÖÂ£©
+	neighbor[x].push_back(y);	//ç‚¹yæ˜¯ç‚¹xçš„é‚»å±…
+	cost[x].push_back(c);		//ç›®å‰ä¸è€ƒè™‘æ¢çº¿å¼€é”€ï¼Œæ•…æ‰€æœ‰ç‚¹è¿çº¿çš„costéƒ½é»˜è®¤ä¸º1
+	from_line[x].push_back(l);	//xåˆ°yçš„è·¯çº¿æ˜¯åœ¨å“ªæ¡åœ°é“çº¿ä¸Š
+	neighbor[y].push_back(x);	//ç‚¹xæ˜¯ç‚¹yçš„é‚»å±…
+	cost[y].push_back(c);
+	from_line[y].push_back(l);	//yåˆ°xçš„è·¯çº¿æ˜¯åœ¨å“ªæ¡åœ°é“çº¿ä¸Šï¼ˆå½“ç„¶ä¸ä¸Šé¢ä¸€è‡´ï¼‰
 }
 
-//³õÊ¼»¯ËùÓĞÕ¾µãµÄÁÚ½Ó¹ØÏµ¡¢Õ¾µãÁ¬ÏßËùÔÚµÄµØÌúÏßÂ·£¨²»¿¼ÂÇ»»³Ë¿ªÏú£©
+//åˆå§‹åŒ–æ‰€æœ‰ç«™ç‚¹çš„é‚»æ¥å…³ç³»ã€ç«™ç‚¹è¿çº¿æ‰€åœ¨çš„åœ°é“çº¿è·¯ï¼ˆä¸è€ƒè™‘æ¢ä¹˜å¼€é”€ï¼‰
 void build_graph_normal() {
-	for (int i = 0; i < line_count; ++i) {//ÑØ×Å²»Í¬µÄµØÌúÏßÂ·À´³õÊ¼»¯ÔÚµØÌúÏßÉÏµÄ¸÷¸öÕ¾µãµÄÁÚ½Ó¹ØÏµ£¬²¢¼ÇÂ¼Õ¾µãÁ¬ÏßÊÇ¼¸ºÅÏß£¨¼´i£©
-		int pre_point = -1;//ÓĞĞ§Õ¾µãµÄindexÖµ´Ó0¿ªÊ¼
-		for (int point : line[i]) {//°´line[i]ÄÚÕ¾µãµÄË³Ğò£¬³õÊ¼»¯iÕâÌõµØÌúÏßÉÏ¸÷Õ¾µãµÄĞÅÏ¢
-			if (pre_point >= 0) {//Èç¹û pre_point ÊÇÓĞĞ§Õ¾µã
-				add_edge(pre_point, point, i);//³õÊ¼»¯
+	for (int i = 0; i < line_count; ++i) {//æ²¿ç€ä¸åŒçš„åœ°é“çº¿è·¯æ¥åˆå§‹åŒ–åœ¨åœ°é“çº¿ä¸Šçš„å„ä¸ªç«™ç‚¹çš„é‚»æ¥å…³ç³»ï¼Œå¹¶è®°å½•ç«™ç‚¹è¿çº¿æ˜¯å‡ å·çº¿ï¼ˆå³iï¼‰
+		int pre_point = -1;//æœ‰æ•ˆç«™ç‚¹çš„indexå€¼ä»0å¼€å§‹
+		for (int point : line[i]) {//æŒ‰line[i]å†…ç«™ç‚¹çš„é¡ºåºï¼Œåˆå§‹åŒ–iè¿™æ¡åœ°é“çº¿ä¸Šå„ç«™ç‚¹çš„ä¿¡æ¯
+			if (pre_point >= 0) {//å¦‚æœ pre_point æ˜¯æœ‰æ•ˆç«™ç‚¹
+				add_edge(pre_point, point, i);//åˆå§‹åŒ–
 			}
-			pre_point = point;//°ÑÕâ´ÎÑ­»·³õÊ¼»¯µÄÕ¾µãÖÃÎªÇ°Õ¾µã
+			pre_point = point;//æŠŠè¿™æ¬¡å¾ªç¯åˆå§‹åŒ–çš„ç«™ç‚¹ç½®ä¸ºå‰ç«™ç‚¹
 		}
 	}
 }
 
-//¼ÆËãÂ·¹ıÕ¾µãÊı£¬²¢¸üĞÂÂ·¹ıÕ¾µãµÄvis_func3
+//è®¡ç®—è·¯è¿‡ç«™ç‚¹æ•°ï¼Œå¹¶æ›´æ–°è·¯è¿‡ç«™ç‚¹çš„vis_func3
 int count_step(int t, int s) {
 	int temp = t;
 	int count = 1;
 	while (temp != s) {
 		count++;
 		temp = pre[temp];
-		//func3±ê¼Ç¸üĞÂ
+		//func3æ ‡è®°æ›´æ–°
 		if (vis_func3[temp] == false) {
 			vis_func3[temp] = true;
 			remaining_point--;
@@ -173,21 +189,21 @@ int count_step(int t, int s) {
 	return count;
 }
 
-//Éú³ÉÊä³öÂ·Ïß
+//ç”Ÿæˆè¾“å‡ºè·¯çº¿
 string route(int s, int t) {
 	string res = "";
 	int temp = t;
 	int last_line = -1;
 	do {
 		if (temp != t) {
-			res += to_point_name(t);//stringÉÏ¼ÓÕ¾µãÃû³Æ
+			res += to_point_name(t);//stringä¸ŠåŠ ç«™ç‚¹åç§°
 		}
 		if (fun == 2) {
-			if (pre_line[t] != last_line && last_line != -1) {//Èç¹ûºÍÉÏ´Î×øµÄÏß²»Í¬ÁË¾ÍÒªÊä³ö»»³ËĞÅÏ¢
-				res += " »»³Ë" + line_name[pre_line[t]];
+			if (pre_line[t] != last_line && last_line != -1) {//å¦‚æœå’Œä¸Šæ¬¡åçš„çº¿ä¸åŒäº†å°±è¦è¾“å‡ºæ¢ä¹˜ä¿¡æ¯
+				res += " æ¢ä¹˜" + line_name[pre_line[t]];
 			}
 		}
-		
+
 		last_line = pre_line[t];
 		if (temp != t) {
 			res += "\n";
@@ -199,16 +215,16 @@ string route(int s, int t) {
 	return res + "\n";
 }
 
-//¹¦ÄÜÒ»£º²éÑ¯²¢Êä³öÂ·ÏßÉÏµÄÕ¾µã
+//åŠŸèƒ½ä¸€ï¼šæŸ¥è¯¢å¹¶è¾“å‡ºè·¯çº¿ä¸Šçš„ç«™ç‚¹
 int task_line_req() {
 	while (true) {
-		cout << "ÊäÈë0ÍË³ö£¬ÊäÈë?ÏÔÊ¾ËùÓĞÂ·Ïß¡£" << endl;
-		cout << "ÇëÊäÈëÏëÒª²éÑ¯µÄÂ·Ïß£º";
+		cout << "è¾“å…¥0é€€å‡ºï¼Œè¾“å…¥?æ˜¾ç¤ºæ‰€æœ‰è·¯çº¿ã€‚" << endl;
+		cout << "è¯·è¾“å…¥æƒ³è¦æŸ¥è¯¢çš„è·¯çº¿ï¼š";
 		cout.flush();
 		string tmp;
-		cin >> tmp;//ÊäÈëÏë²éÑ¯µÄÏßÂ·Ãû³Æ
+		cin >> tmp;//è¾“å…¥æƒ³æŸ¥è¯¢çš„çº¿è·¯åç§°
 		if (tmp == "0") break;
-		if (tmp == "?" || tmp == "£¿") {
+		if (tmp == "?" || tmp == "ï¼Ÿ") {
 			cout << line_list() << endl;
 		}
 		else {
@@ -218,30 +234,30 @@ int task_line_req() {
 	return 0;
 }
 
-//¹¦ÄÜ¶ş£º¼ÆËãÁ½¸ö³µÕ¾Ö®¼äµÄ×î¶Ì¾àÀë£¨»»³Ë²»¶îÍâ¼Æ¾àÀë£©¡£·µ»ØĞèÒªÊä³öµÄ×Ö·û´®¡£ÒòÎªÏàÁÚ³µÕ¾Ö®¼äµÄ¾àÀë¶¼Îª1£¬Ê¹ÓÃBFSËã·¨¡£ 
+//åŠŸèƒ½äºŒï¼šè®¡ç®—ä¸¤ä¸ªè½¦ç«™ä¹‹é—´çš„æœ€çŸ­è·ç¦»ï¼ˆæ¢ä¹˜ä¸é¢å¤–è®¡è·ç¦»ï¼‰ã€‚è¿”å›éœ€è¦è¾“å‡ºçš„å­—ç¬¦ä¸²ã€‚å› ä¸ºç›¸é‚»è½¦ç«™ä¹‹é—´çš„è·ç¦»éƒ½ä¸º1ï¼Œä½¿ç”¨BFSç®—æ³•ã€‚ 
 string display_normal(string src_name, string tar_name) {
 	fun = 2;
-	int t = to_point_index(src_name), s = to_point_index(tar_name);//£¡£¡£¡tÊÇÆğµã£¬sÊÇÖÕµã£¨ÓëºóĞø³ÌĞòÃüÃû³åÍ»£¬ºóĞøĞŞ¸Ä£©
-	if (s == t) {//Èç¹ûÆğµã¾ÍÊÇÖÕµã
+	int t = to_point_index(src_name), s = to_point_index(tar_name);//ï¼ï¼ï¼tæ˜¯èµ·ç‚¹ï¼Œsæ˜¯ç»ˆç‚¹ï¼ˆä¸åç»­ç¨‹åºå‘½åå†²çªï¼Œåç»­ä¿®æ”¹ï¼‰
+	if (s == t) {//å¦‚æœèµ·ç‚¹å°±æ˜¯ç»ˆç‚¹
 		return "\n" + (string)"1" + "\n" + src_name + "\n\n";
 	}
-	build_graph_normal();//½¨Í¼
-	queue<int> q;//ÏÈ½øÏÈ³ö
-	q.push(s);//ÖÕµãÕ¾ĞòºÅÈë¶Ó
-	dis[s] = 0;//°Ñ×Ô¼ºµ½×Ô¼ºµÄ¾àÀë¸üĞÂÎª0
-	vis[s] = true;//±ê¼Ç´Ëµã£¬ËµÃ÷ÒÑ¾­×ß¹ı
+	build_graph_normal();//å»ºå›¾
+	queue<int> q;//å…ˆè¿›å…ˆå‡º
+	q.push(s);//ç»ˆç‚¹ç«™åºå·å…¥é˜Ÿ
+	dis[s] = 0;//æŠŠè‡ªå·±åˆ°è‡ªå·±çš„è·ç¦»æ›´æ–°ä¸º0
+	vis[s] = true;//æ ‡è®°æ­¤ç‚¹ï¼Œè¯´æ˜å·²ç»èµ°è¿‡
 	while (!q.empty()) {
-		int point = q.front();//È¡¶ÓÁĞµÚÒ»¸öÊıµÄÖµ
-		q.pop();//É¾³ı¶ÓÁĞµÚÒ»¸öÊı
+		int point = q.front();//å–é˜Ÿåˆ—ç¬¬ä¸€ä¸ªæ•°çš„å€¼
+		q.pop();//åˆ é™¤é˜Ÿåˆ—ç¬¬ä¸€ä¸ªæ•°
 		for (int i = 0; i < neighbor[point].size(); ++i) {
 			int nex_point = neighbor[point][i];
-			if (!vis[nex_point]) {//Ã»×ß¹ı¸Ãµã
-				vis[nex_point] = 1;//±ê¼Ç´Ëµã
+			if (!vis[nex_point]) {//æ²¡èµ°è¿‡è¯¥ç‚¹
+				vis[nex_point] = 1;//æ ‡è®°æ­¤ç‚¹
 				dis[nex_point] = dis[point] + 1;
 				pre[nex_point] = point;
 				pre_line[nex_point] = from_line[point][i];
 				if (nex_point == t) {
-					break;//µ½´ïÖÕµãbreak
+					break;//åˆ°è¾¾ç»ˆç‚¹break
 				}
 				q.push(nex_point);
 			}
@@ -249,7 +265,7 @@ string display_normal(string src_name, string tar_name) {
 		if (vis[t]) break;
 	}
 
-	string res= "\n";
+	string res = "\n";
 	int count_point = count_step(t, s);
 	res = res + to_string(count_point) + "\n" + src_name + route(s, t);
 	return res;
@@ -259,22 +275,22 @@ string display_normal(string src_name, string tar_name) {
 
 string bfs_func3(int point_now, int next_point) {
 	int t = point_now, s = next_point;
-	queue<int> q;//ÏÈ½øÏÈ³ö
-	q.push(s);//ÖÕµãÕ¾ĞòºÅÈë¶Ó
-	dis[s] = 0;//°Ñ×Ô¼ºµ½×Ô¼ºµÄ¾àÀë¸üĞÂÎª0
-	vis[s] = true;//±ê¼Ç´Ëµã£¬ËµÃ÷ÒÑ¾­×ß¹ı
+	queue<int> q;//å…ˆè¿›å…ˆå‡º
+	q.push(s);//ç»ˆç‚¹ç«™åºå·å…¥é˜Ÿ
+	dis[s] = 0;//æŠŠè‡ªå·±åˆ°è‡ªå·±çš„è·ç¦»æ›´æ–°ä¸º0
+	vis[s] = true;//æ ‡è®°æ­¤ç‚¹ï¼Œè¯´æ˜å·²ç»èµ°è¿‡
 	while (!q.empty()) {
-		int point = q.front();//È¡¶ÓÁĞµÚÒ»¸öÊıµÄÖµ
-		q.pop();//É¾³ı¶ÓÁĞµÚÒ»¸öÊı
+		int point = q.front();//å–é˜Ÿåˆ—ç¬¬ä¸€ä¸ªæ•°çš„å€¼
+		q.pop();//åˆ é™¤é˜Ÿåˆ—ç¬¬ä¸€ä¸ªæ•°
 		for (int i = 0; i < neighbor[point].size(); ++i) {
 			int nex_point = neighbor[point][i];
-			if (!vis[nex_point]) {//Ã»×ß¹ı¸Ãµã
-				vis[nex_point] = 1;//±ê¼Ç´Ëµã
+			if (!vis[nex_point]) {//æ²¡èµ°è¿‡è¯¥ç‚¹
+				vis[nex_point] = 1;//æ ‡è®°æ­¤ç‚¹
 				dis[nex_point] = dis[point] + 1;
 				pre[nex_point] = point;
 				pre_line[nex_point] = from_line[point][i];
 				if (nex_point == t) {
-					break;//µ½´ïÖÕµãbreak
+					break;//åˆ°è¾¾ç»ˆç‚¹break
 				}
 				q.push(nex_point);
 			}
@@ -284,143 +300,175 @@ string bfs_func3(int point_now, int next_point) {
 	return route(s, t);
 }
 
-//¹¦ÄÜÈı£º¼ÆËã¾¡¿ÉÄÜ¿ìµØ±éÀúµØÌúµÄËùÓĞ³µÕ¾µÄÂ·Ïß
+//åŠŸèƒ½ä¸‰ï¼šè®¡ç®—å°½å¯èƒ½å¿«åœ°éå†åœ°é“çš„æ‰€æœ‰è½¦ç«™çš„è·¯çº¿
 string display_func3(string src_name) {
 	fun = 3;
-	string res = src_name + "\n";
-	int step = 1;	//¼ÇÂ¼¾­¹ıÕ¾µãÊı
-	int st = to_point_index(src_name);//Æğµã
-	int point_now = st;//´ËÊ±ËùÔÚµã
-	int next_point = -1;
-	remaining_point = point_count;
-	build_graph_normal();//½¨Í¼
-	
-	remaining_point--;		//
-	vis_func3[st] = true;	//ÅÅ³ıÆğµã
-							//
+	string res;//æœ€ç»ˆè·¯çº¿ç»“æœ
+	string res_temp;//è®°å½•ç»è¿‡ç«™ç‚¹è·¯çº¿
+	int step = INF;//æœ€ç»ˆæ­¥æ•°ç»“æœ
+	int step_temp = INF;//è®°å½•ç»è¿‡ç«™ç‚¹æ•°
+	int st = to_point_index(src_name);//èµ·ç‚¹
+	build_graph_normal();//å»ºå›¾
 
-	while (remaining_point != 0) {	// point_now µÄ neighbor ÖĞËæ»úÑ¡Ò»¸ö vis_func3 != true µÄµã×÷ÎªÏÂÒ»µã
-		int neighbor_size = neighbor[point_now].size();
-		int *point_unreached = new int[neighbor_size];
-		int j = 0;	//point_unreachedµÄÏÂ±ê
-		for (int i = 0; i < neighbor_size; i++) {
-			if (vis_func3[neighbor[point_now][i]] != true) {
-				point_unreached[j] = neighbor[point_now][i];
-				j++;
-			}
-		}
+	//é‡å¤nnæ¬¡å–è·¯å¾„
+	for (int nn = 200000; nn > 0; nn--) {
 
-		if (j != 0) {	//j != 0 ËµÃ÷point_unreached²»Îª¿Õ
-			//È¡Ëæ»úÊı
-			srand((unsigned int)time(NULL));
-			int temp = rand() % j;
-			next_point = point_unreached[temp];
 
-			res += to_point_name(next_point) + "\n";
+		res_temp = src_name + "\n";
+		step_temp = 1;
+		st = to_point_index(src_name);
+		int point_now = st;//æ­¤æ—¶æ‰€åœ¨ç‚¹
+		int next_point = -1;
+		remaining_point = point_count;
 
-			vis_func3[next_point] = true;
-			point_now = next_point;
-			remaining_point--;
-			step++;
 
-			delete point_unreached;
-		} else {		//point_unreachedÎª¿Õ£¬ËµÃ÷ÁÚ¾Ó¶¼±»±ê¼ÇÁË£¬´ÓÈ«¾ÖÕÒ next_point
-			int *point_unreached_2 = new int[point_count];
-			int k = 0;//point_unreached_2µÄÏÂ±ê
-			for (int i = 0; i < point_count; i++) {
-				if (vis_func3[i] != true) {
-					point_unreached_2[k] = i;
-					k++;
+		remaining_point--;		//
+		vis_func3[st] = true;	//æ’é™¤èµ·ç‚¹
+		//
+
+		while (remaining_point != 0) {	// point_now çš„ neighbor ä¸­éšæœºé€‰ä¸€ä¸ª vis_func3 != true çš„ç‚¹ä½œä¸ºä¸‹ä¸€ç‚¹
+			int neighbor_size = neighbor[point_now].size();
+			int* point_unreached = new int[neighbor_size];
+			int j = 0;	//point_unreachedçš„ä¸‹æ ‡
+			for (int i = 0; i < neighbor_size; i++) {
+				if (vis_func3[neighbor[point_now][i]] != true) {
+					point_unreached[j] = neighbor[point_now][i];
+					j++;
 				}
 			}
 
-			srand((unsigned int)time(NULL));
-			int temp = rand() % k;
-			next_point = point_unreached_2[temp];
+			if (j != 0) {	//j != 0 è¯´æ˜point_unreachedä¸ä¸ºç©º
+				//å–éšæœºæ•°
+				srand((unsigned int)time(NULL));
+				int temp = rand() % j;
+				next_point = point_unreached[temp];
+
+				res_temp += to_point_name(next_point) + "\n";
+
+				vis_func3[next_point] = true;
+				point_now = next_point;
+				remaining_point--;
+				step_temp++;
+
+				delete point_unreached;
+			}
+			else {		//point_unreachedä¸ºç©ºï¼Œè¯´æ˜é‚»å±…éƒ½è¢«æ ‡è®°äº†ï¼Œä»å…¨å±€æ‰¾ next_point
+				int* point_unreached_2 = new int[point_count];
+				int k = 0;//point_unreached_2çš„ä¸‹æ ‡
+				for (int i = 0; i < point_count; i++) {
+					if (vis_func3[i] != true) {
+						point_unreached_2[k] = i;
+						k++;
+					}
+				}
+
+				srand((unsigned int)time(NULL));
+				int temp = rand() % k;
+				next_point = point_unreached_2[temp];
 
 
-			//µ÷ÓÃbfs
+				//è°ƒç”¨bfs
+				bfs_func3(point_now, next_point);
+				res_temp += bfs_func3(point_now, next_point);
+
+
+				step_temp += (count_step(point_now, next_point) - 1);
+				remaining_point;
+				vis_func3[next_point] = true;
+				point_now = next_point;
+
+				delete point_unreached_2;
+
+				//åˆå§‹åŒ–æ‰€æœ‰func2ä¸­ä½¿ç”¨çš„æ‰€æœ‰å…¨å±€å˜é‡
+				memset(vis, false, sizeof(vis));
+				memset(dis, INF, sizeof(dis));
+				memset(pre, 0, sizeof(pre));
+				memset(pre_line, 0, sizeof(pre_line));
+			}
+		}
+
+		//æ‰€æœ‰ç‚¹èµ°å®Œäº†ï¼Œå›èµ·ç‚¹
+		if (remaining_point == 0) {
+
+			next_point = st;
+			//è°ƒç”¨bfs
 			bfs_func3(point_now, next_point);
-			res += bfs_func3(point_now, next_point);
+			res_temp += bfs_func3(point_now, next_point);
 
-
-			step += (count_step(point_now,next_point) - 1);
+			step_temp += (count_step(point_now, next_point) - 1);
 			remaining_point;
 			vis_func3[next_point] = true;
 			point_now = next_point;
-
-			delete point_unreached_2;
-
-			//³õÊ¼»¯ËùÓĞfunc2ÖĞÊ¹ÓÃµÄËùÓĞÈ«¾Ö±äÁ¿
-			memset(vis, false, sizeof(vis));
-			memset(dis, INF, sizeof(dis));
-			memset(pre, 0, sizeof(pre));
-			memset(pre_line, 0, sizeof(pre_line));
 		}
+
+
+		if (step_temp < step) {
+			res.clear();
+			res = res_temp;
+			step = step_temp;
+		}
+
+		res_temp.clear();
+
+		//memset(neighbor, NULL, sizeof(neighbor));
+		//memset(cost, NULL, sizeof(cost));
+		//memset(from_line, NULL, sizeof(from_line));
+		memset(vis, false, sizeof(vis));
+		memset(dis, INF, sizeof(dis));
+		memset(pre, 0, sizeof(pre));
+		memset(pre_line, 0, sizeof(pre_line));
+		memset(vis_func3, false, sizeof(vis_func3));
 	}
-
-	//ËùÓĞµã×ßÍêÁË£¬»ØÆğµã
-	if (remaining_point == 0) {	
-
-		next_point = st;
-		//µ÷ÓÃbfs
-		bfs_func3(point_now, next_point);
-		res += bfs_func3(point_now, next_point);
-
-		step += (count_step(point_now, next_point) - 1);
-		remaining_point;
-		vis_func3[next_point] = true;
-		point_now = next_point;
-	}
-
 
 
 	return to_string(step) + "\n" + res;
+	//return to_string(step) + "\n";
 }
 
 
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-	//µ÷ÊÔ¹¦ÄÜ¶ş£º
+	//è°ƒè¯•åŠŸèƒ½ä¸‰ï¼š
 	argc = 4;
 	argv[1] = const_cast<char*>("/a");
-	argv[2] = const_cast<char*>("Ê®ºÅµã");
-	argv[3] = const_cast<char*>("Ê®¶şºÅµã");
+	argv[2] = const_cast<char*>("è‰¯ä¹¡å¤§å­¦åŸåŒ—");//èµ·ç‚¹
+	argv[3] = const_cast<char*>("åŒ—äº¬ç«™");//ç›®çš„åœ°
 
 
-	//ÊäÈë n m,³õÊ¼»¯¸÷µã¾àÀë£¬ÏàÁ¬µÄµã¾àÀëÎª1£¬Î´ÏàÁ¬µÄµã¾àÀëÎªINF,
+
+	//è¾“å…¥ n m,åˆå§‹åŒ–å„ç‚¹è·ç¦»ï¼Œç›¸è¿çš„ç‚¹è·ç¦»ä¸º1ï¼Œæœªç›¸è¿çš„ç‚¹è·ç¦»ä¸ºINF,
 	init();
 	input_map();
 
-	// Ã»ÓĞ¶îÍâ²ÎÊı£¬½øÈë¹¦ÄÜÒ»£º²éÑ¯Â·Ïß£¬Êä³öÂ·ÏßÉÏËùÓĞÕ¾µã
+	// æ²¡æœ‰é¢å¤–å‚æ•°ï¼Œè¿›å…¥åŠŸèƒ½ä¸€ï¼šæŸ¥è¯¢è·¯çº¿ï¼Œè¾“å‡ºè·¯çº¿ä¸Šæ‰€æœ‰ç«™ç‚¹
 	if (argc == 1) {
-		
+
 		return task_line_req();
 	}
 
-	//ÃüÁîĞĞµ÷ÓÃ³ÌĞò¼ÓÉÏÁË²ÎÊı /b £¬½øÈë¹¦ÄÜ¶ş£º¼ÆËãËùÊäÈëÁ½¸ö³µÕ¾¼äµÄ×î¶ÌÂ·Ïß
+	//å‘½ä»¤è¡Œè°ƒç”¨ç¨‹åºåŠ ä¸Šäº†å‚æ•° /b ï¼Œè¿›å…¥åŠŸèƒ½äºŒï¼šè®¡ç®—æ‰€è¾“å…¥ä¸¤ä¸ªè½¦ç«™é—´çš„æœ€çŸ­è·¯çº¿
 	if (strcmp(argv[1], "/b") == 0) {
-		
-		// »»³ËÃ»ÓĞ¶îÍâ¾àÀëµÄÇé¿ö
+
+		// æ¢ä¹˜æ²¡æœ‰é¢å¤–è·ç¦»çš„æƒ…å†µ
 		cout << display_normal((string)argv[2], (string)argv[3]);
-		
-		// »»³Ë¿ªÏú¼ÇÎª3£¨´ıÍê³É£©
+
+		// æ¢ä¹˜å¼€é”€è®°ä¸º3ï¼ˆå¾…å®Œæˆï¼‰
 
 	}
 
-	//ÃüÁîĞĞµ÷ÓÃ³ÌĞò¼ÓÉÏÁË²ÎÊı /a £¬½øÈë¹¦ÄÜÈı£º¼ÆËã¾¡¿ÉÄÜ¿ìµØ±éÀúµØÌúµÄËùÓĞ³µÕ¾µÄÂ·Ïß(ÏÈ²»¿¼ÂÇ»»³Ë¿ªÏú£¬µØÍ¼ÎªµÈÈ¨ÎŞÏòÍ¼£©
+	//å‘½ä»¤è¡Œè°ƒç”¨ç¨‹åºåŠ ä¸Šäº†å‚æ•° /a ï¼Œè¿›å…¥åŠŸèƒ½ä¸‰ï¼šè®¡ç®—å°½å¯èƒ½å¿«åœ°éå†åœ°é“çš„æ‰€æœ‰è½¦ç«™çš„è·¯çº¿(å…ˆä¸è€ƒè™‘æ¢ä¹˜å¼€é”€ï¼Œåœ°å›¾ä¸ºç­‰æƒæ— å‘å›¾ï¼‰
 	if (strcmp(argv[1], "/a") == 0) {
-		
-		// »»³ËÃ»ÓĞ¶îÍâ¾àÀëµÄÇé¿ö
+
+		// æ¢ä¹˜æ²¡æœ‰é¢å¤–è·ç¦»çš„æƒ…å†µ
 		cout << display_func3((string)argv[2]);
 
 
 	}
-	
-	
+
+
 	return 0;
-	
+
 }
 
